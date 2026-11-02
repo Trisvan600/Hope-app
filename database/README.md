@@ -79,16 +79,18 @@ The runner:
 3. Applies every new `.sql` file in `migrations/`, in filename order, each inside a transaction.
 4. Stops and rolls back that file if it fails.
 
-Expected output:
+Expected output on the first run:
 
-```
-applied 001_init.sql
-migrations up to date
-```
+````
+Running 001_init.sql...
+Done. Applied 1 migration(s).
+````
 
-Running it again is safe. Files already applied are skipped and you will only see `migrations up to date`.
+Running it again is safe. Files already applied are skipped, and you will see:
 
----
+````
+No new migrations.
+````
 
 ## 4. Look at the database
 
