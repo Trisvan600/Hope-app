@@ -79,16 +79,19 @@ The runner:
 3. Applies every new `.sql` file in `migrations/`, in filename order, each inside a transaction.
 4. Stops and rolls back that file if it fails.
 
-Expected output:
+Expected output (one "Running" line for each new file, N is how many were applied):
 
 ```
-applied 001_init.sql
-migrations up to date
+Running 001_init.sql...
+Running 002_hope_base_tables.sql...
+Done. Applied N migration(s).
 ```
 
-Running it again is safe. Files already applied are skipped and you will only see `migrations up to date`.
+Running it again is safe. Files already applied are skipped, and you will see:
 
----
+```
+No new migrations.
+```
 
 ## 4. Look at the database
 
@@ -102,7 +105,7 @@ Running it again is safe. Files already applied are skipped and you will only se
 
 1. Create a new file in `migrations/` with the next number and a short name:
    ```
-   migrations/002_base_tables.sql
+   migrations/002_hope_base_tables.sql
    migrations/003_app_user_and_rights.sql
    ```
 2. Write plain SQL in the file.
@@ -125,9 +128,9 @@ Running it again is safe. Files already applied are skipped and you will only se
 | `ENOTFOUND` or connection times out | You used the Direct connection string. Use the **Session pooler** string. |
 | `password authentication failed` | Wrong password, or special characters not percent-encoded. Ask the DB Admin for the correct string or a password reset. |
 | `Tenant or user not found` | The user must look like `postgres.PROJECT_REF`, not just `postgres`. Re-copy the string. |
-| Connects to `127.0.0.1`, or `client password must be a string` | `.env` is missing, misnamed, or not in the `database/` folder. Check the file is named exactly `.env`. |
+| `Missing DATABASE_URL. Copy .env.example to .env and fill it in.` | `.env` is missing, misnamed, or not in the `database/` folder. Check the file is named exactly `.env`. |
 | `Cannot find module 'pg'` | Run `npm install` inside the `database/` folder. |
-| `failed 00X_...sql: ...` | There is an error in that SQL file. It was rolled back, so nothing was half-applied. Fix the SQL and run again. |
+| `Failed on 00X_...sql: ...` | There is an error in that SQL file. It was rolled back, so nothing was half-applied. Fix the SQL and run again. |
 | `.env` shows up in `git status` | Stop. Do not commit. Check that `.gitignore` lists `.env`. |
 
 If you accidentally commit a password or connection string, tell the DB Admin and the Scrum Master **immediately**. Deleting the file is not enough because it stays in Git history. The password must be reset.
