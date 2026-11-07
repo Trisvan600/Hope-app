@@ -1,0 +1,79 @@
+/* ---------- Tabs (sit on the dark background) ---------- */
+.u-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.u-tabs button {
+  padding: 8px 14px; border: 1px solid transparent; border-radius: 8px; cursor: pointer;
+  background: #1e293b; color: #94a3b8; font: inherit; font-weight: 600;
+}
+.u-tabs button:hover { color: #e2e8f0; }
+.u-tabs button.active { background: #2563eb; border-color: #2563eb; color: #ffffff; }
+.u-count { margin-left: 6px; background: #ef4444; color: #fff; border-radius: 999px; padding: 0 7px; font-size: 12px; }
+
+/* ---------- Card ---------- */
+.u-card {
+  background: #fff; color: #0f172a;
+  border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;
+}
+.u-toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.u-toolbar .u-input:first-child { flex: 1; min-width: 180px; }
+
+/* ---------- Inputs ---------- */
+.u-input {
+  padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit;
+  width: 100%; box-sizing: border-box;
+  background: #fff; color: #0f172a;
+}
+.u-input::placeholder { color: #94a3b8; }
+.u-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+.u-toolbar .u-input { width: auto; }
+
+/* ---------- Buttons ---------- */
+.u-btn {
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; font: inherit; font-weight: 500;
+  background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;
+}
+.u-btn:hover { background: #e2e8f0; }
+.u-btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.u-btn.primary:hover { background: #1d4ed8; }
+.u-btn.danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.u-btn.danger:hover { background: #fee2e2; }
+.u-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ---------- Table ---------- */
+.u-table { width: 100%; border-collapse: collapse; }
+.u-table th, .u-table td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+.u-table th {
+  color: #64748b; font-weight: 600; font-size: .75rem;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.u-table td { color: #0f172a; }
+.u-table td.email, .u-table td:nth-child(2) { color: #475569; }
+.u-table tbody tr:hover { background: #f8fafc; }
+.u-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.u-muted { color: #94a3b8; }
+
+/* ---------- Badges ---------- */
+.u-badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; background: #f1f5f9; color: #475569; }
+.st-active { background: #dcfce7; color: #15803d; }
+.st-pending { background: #fef3c7; color: #b45309; }
+.st-blocked, .st-rejected { background: #fee2e2; color: #b91c1c; }
+.role-superadmin { background: #ede9fe; color: #6d28d9; }
+.role-admin { background: #dbeafe; color: #1d4ed8; }
+
+/* ---------- Dialog ---------- */
+.u-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.6); display: grid; place-items: center; z-index: 50; }
+.u-dialog {
+  background: #fff; color: #0f172a; border-radius: 12px;
+  width: min(560px, 92vw); max-height: 90vh; display: flex; flex-direction: column;
+}
+.u-dialog-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #e2e8f0; }
+.u-dialog-head h3 { margin: 0; color: #0f172a; }
+.u-x { border: none; background: none; font-size: 24px; cursor: pointer; color: #64748b; }
+.u-x:hover { color: #0f172a; }
+.u-dialog-body { padding: 18px; overflow: auto; }
+.u-dialog-foot { padding: 12px 18px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ---------- Form ---------- */
+.u-form { display: grid; gap: 12px; }
+.u-form label { display: grid; gap: 4px; font-size: 14px; color: #334155; font-weight: 500; }
+.u-form .u-check { display: flex; align-items: center; gap: 8px; }
+.u-form .u-check input { width: auto; }

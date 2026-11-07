@@ -1,0 +1,119 @@
+/* =========================================================
+   APP SHELL: sidebar + top bar (NexusOps look)
+   ========================================================= */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #0b0f1a;
+  color: #e6eaf2;
+}
+
+/* ---------- sidebar ---------- */
+.app-shell .app-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px;
+  background: #070a12;
+  border-right: 1px solid #1f2940;
+}
+.app-shell .app-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; }
+.app-shell .app-logo {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: #2f6bff; color: #fff; font-weight: 700;
+}
+.app-shell .app-brand-name { font-size: 18px; font-weight: 700; color: #fff; }
+.app-shell .app-brand-name span { color: #2f6bff; }
+.app-shell .app-section {
+  padding: 0 12px 8px;
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: #5f6b82;
+}
+
+/* links (these override the generic nav rules above) */
+.app-shell nav.app-nav {
+  display: flex; flex-direction: column; gap: 4px;
+  flex: 1; padding: 0; background: transparent; border: 0;
+}
+.app-shell nav.app-nav a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px; font-weight: 500;
+  color: #8b97ad;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.app-shell nav.app-nav a:hover { background: #121828; color: #fff; }
+.app-shell nav.app-nav a.active {
+  background: #121828; color: #fff;
+  box-shadow: inset 2px 0 0 #2f6bff;
+}
+
+/* user box */
+.app-shell .app-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 8px 8px; border-top: 1px solid #1f2940;
+}
+.app-shell .app-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, #2f6bff, #7c3aed);
+  color: #fff; font-weight: 700; font-size: 14px;
+}
+.app-shell .app-user-text { min-width: 0; }
+.app-shell .app-user-text strong { display: block; font-size: 13px; color: #fff; }
+.app-shell .app-user-text small {
+  display: block; font-size: 11px; color: #2f6bff;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.app-shell .app-logout {
+  margin-top: 6px;
+  text-align: left;
+  background: transparent !important;
+  border: 0 !important;
+  color: #8b97ad !important;
+  padding: 10px 8px !important;
+}
+.app-shell .app-logout:hover { color: #f87171 !important; background: transparent !important; }
+
+/* ---------- main area ---------- */
+.app-shell .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.app-shell .app-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; padding: 0 28px;
+  background: #070a12; border-bottom: 1px solid #1f2940;
+}
+.app-shell .app-status { font-size: 12px; color: #8b97ad; }
+.app-shell .app-status b { color: #34d399; font-weight: 600; }
+.app-shell .app-status i {
+  display: inline-block; width: 8px; height: 8px; margin-right: 6px;
+  border-radius: 50%; background: #34d399;
+}
+.app-shell .app-email { font-size: 13px; color: #8b97ad; }
+.app-shell .app-content { flex: 1; padding: 24px 28px; }
+.app-shell .app-footer {
+  padding: 16px 28px; text-align: center;
+  font-size: 12px; color: #5f6b82;
+  background: #070a12; border-top: 1px solid #1f2940;
+}
+
+/* ---------- small screens: sidebar becomes a top strip ---------- */
+@media (max-width: 900px) {
+  .app-shell { flex-direction: column; }
+  .app-shell .app-sidebar {
+    position: static; width: 100%; height: auto;
+    flex-direction: row; flex-wrap: wrap; align-items: center;
+    padding: 10px 14px; border-right: 0; border-bottom: 1px solid #1f2940;
+  }
+  .app-shell .app-brand { padding: 0 12px 0 0; }
+  .app-shell .app-section, .app-shell .app-user { display: none; }
+  .app-shell nav.app-nav { flex-direction: row; flex-wrap: wrap; flex: 1; }
+  .app-shell .app-topbar { padding: 0 14px; }
+  .app-shell .app-content { padding: 16px 14px; }
+}

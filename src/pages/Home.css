@@ -1,0 +1,118 @@
+/* ===== Dashboard (scoped sa .dash lang) ===== */
+.dash {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 24px;
+  background: #0b1020;
+  color: #e5e7eb;
+  font-family: Inter, system-ui, sans-serif;
+}
+.dash *, .dash *::before, .dash *::after { box-sizing: border-box; }
+.dash a { text-decoration: none; }
+
+/* kapag nasa loob ng AppLayout, huwag nang doblehin ang background/padding */
+.hx-main .dash { min-height: 0; padding: 0; background: transparent; }
+
+/* ----- Header ----- */
+.dash .dash-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.dash h1 { margin: 0; font-size: 26px; font-weight: 800; color: #fff; line-height: 1.2; }
+.dash .dash-head p { margin: 6px 0 0; color: #9ca3af; font-size: 14px; }
+.dash .dash-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ----- Buttons ----- */
+.dash .btn {
+  display: inline-block; width: auto; height: auto; margin: 0;
+  padding: 10px 18px; border-radius: 8px; border: 1px solid transparent;
+  font-size: 13px; font-weight: 600; line-height: 1.2; cursor: pointer;
+  box-shadow: none; text-transform: none; letter-spacing: 0;
+}
+.dash .btn.primary { background: #2563eb; color: #fff; }
+.dash .btn.primary:hover { background: #1d4ed8; }
+.dash .btn.ghost { background: #121a2e; color: #e5e7eb; border-color: #1f2a44; }
+.dash .btn.ghost:hover { background: #172036; }
+.dash .btn.sm { padding: 7px 14px; font-size: 12px; }
+
+/* ----- Cards ----- */
+.dash .card {
+  width: auto; max-width: none; min-width: 0; margin: 0;
+  background: #121a2e; border: 1px solid #1f2a44; border-radius: 12px;
+  box-shadow: none;
+}
+.dash .dash-cards {
+  display: grid; gap: 16px; margin-bottom: 20px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px)  { .dash .dash-cards { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1100px) { .dash .dash-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.dash .stat { padding: 18px 20px; }
+.dash .stat-top {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: #9ca3af;
+}
+.dash .ico {
+  width: 34px; height: 34px; border-radius: 8px; font-size: 15px;
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.dash .ico.blue   { background: #14264d; }
+.dash .ico.violet { background: #251a4d; }
+.dash .ico.green  { background: #0f2e25; }
+.dash .ico.amber  { background: #3b2a0a; }
+.dash .stat-val {
+  margin: 14px 0 4px; font-size: 32px; font-weight: 800; color: #fff;
+  line-height: 1.1; text-transform: capitalize;
+}
+.dash .stat-note { font-size: 12px; color: #9ca3af; }
+.dash .stat-note.amber { color: #fbbf24; font-weight: 600; }
+.dash .stat-note.red   { color: #f87171; font-weight: 600; }
+
+/* ----- Table card ----- */
+.dash .table-card { width: 100%; padding: 20px; overflow-x: auto; }
+.dash .table-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; margin-bottom: 14px;
+}
+.dash .table-head h3 { margin: 0; font-size: 17px; font-weight: 700; color: #fff; }
+.dash .table-head p { margin: 3px 0 0; font-size: 12px; color: #9ca3af; }
+
+.dash table {
+  width: 100%; min-width: 480px; margin: 0;
+  border-collapse: collapse; table-layout: auto; background: transparent;
+}
+.dash thead { background: transparent; }
+.dash th {
+  text-align: left; padding: 10px 8px; background: none;
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: #6b7280; white-space: nowrap;
+  border: none; border-bottom: 1px solid #1f2a44;
+}
+.dash td {
+  padding: 12px 8px; background: none; font-size: 13px; color: #e5e7eb;
+  border: none; border-bottom: 1px solid #172036; vertical-align: middle;
+}
+.dash tbody tr:last-child td { border-bottom: none; }
+.dash tbody tr:hover td { background: #0f1730; }
+.dash .empty { text-align: center; color: #6b7280; padding: 28px; }
+
+.dash .u-cell { display: flex; align-items: center; gap: 12px; }
+.dash .u-cell b { display: block; color: #fff; font-size: 13px; font-weight: 600; }
+.dash .u-cell small { display: block; color: #6b7280; font-size: 11px; }
+.dash .u-av {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: #1e3a8a; color: #bfdbfe; font-size: 11px; font-weight: 700;
+  display: grid; place-items: center;
+}
+.dash td.role { color: #9ca3af; text-transform: capitalize; white-space: nowrap; }
+
+/* ----- Status badges ----- */
+.dash .badge {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 700; text-transform: capitalize;
+}
+.dash .badge.active   { background: #0f2e25; color: #34d399; }
+.dash .badge.pending  { background: #3b2a0a; color: #fbbf24; }
+.dash .badge.rejected { background: #3a1217; color: #f87171; }
