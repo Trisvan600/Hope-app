@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { usePermissions } from '../../lib/permissions'
 import { countPending } from './api'
-import PendingApprovals from './PendingApprovals'
+import PendingApprovals from '../../pages/PendingApprovals'
 import UserManagement from './UserManagement'
 import '../../sprint2.css'
 import './users.css'

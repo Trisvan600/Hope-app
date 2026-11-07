@@ -1,15 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from './supabaseClient'
+
 export function can(user, permission) {
   return !!user?.permissions?.includes(permission)
-  function can(user, permission) {
-  return !!user?.permissions?.includes(permission)
- 
-}
 }
 
-// REPLACES the Sprint 2 permissions.jsx. Rights now come from user_permissions (per user),
-// and the context also exposes the user's role and status.
+// Rights come from user_permissions (per user); the context also exposes the user's role and status.
 
 const EMPTY = { userId: null, role: null, status: null, perms: new Set(), loading: true }
 
@@ -27,23 +23,41 @@ export function PermissionsProvider({ children }) {
   const [state, setState] = useState(EMPTY)
 
   const load = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setState({ ...EMPTY, loading: false })
-      return
-    }
-    const { data: profile } = await supabase
-      .from('profiles').select('role, status').eq('id', user.id).single()
-    const role = profile?.role ?? 'user'
-    const status = profile?.status ?? 'pending'
+    try {
+      // getSession reads the stored session (no network call), so a stale
+      // token no longer causes 403 errors on /auth/v1/user.
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user ?? null
 
-    let perms = new Set()
-    if (status === 'active' && role !== 'superadmin') {
-      const { data: rows } = await supabase
-        .from('user_permissions').select('module, action').eq('user_id', user.id)
-      perms = new Set((rows ?? []).map((r) => `${r.module}:${r.action}`))
+      if (!user) {
+        setState({ ...EMPTY, loading: false })
+        return
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles').select('role, status').eq('id', user.id).maybeSingle()
+
+      // If the database rejects the token, clear it and treat the user as logged out.
+      if (profileError && (profileError.code === 'PGRST301' || profileError.status === 401 || profileError.status === 403)) {
+        await supabase.auth.signOut()
+        setState({ ...EMPTY, loading: false })
+        return
+      }
+
+      const role = profile?.role ?? 'user'
+      const status = profile?.status ?? 'pending'
+
+      let perms = new Set()
+      if (status === 'active' && role !== 'superadmin') {
+        const { data: rows } = await supabase
+          .from('user_permissions').select('module, action').eq('user_id', user.id)
+        perms = new Set((rows ?? []).map((r) => `${r.module}:${r.action}`))
+      }
+      setState({ userId: user.id, role, status, perms, loading: false })
+    } catch (err) {
+      console.error('Failed to load permissions:', err)
+      setState({ ...EMPTY, loading: false })
     }
-    setState({ userId: user.id, role, status, perms, loading: false })
   }, [])
 
   useEffect(() => {
@@ -65,7 +79,7 @@ export function PermissionsProvider({ children }) {
       isActive,
       isSuperadmin,
       isAdmin,
-      isStaff: isSuperadmin || isAdmin,          // can open User Management
+      isStaff: isSuperadmin || isAdmin, // can open User Management
       can: (module, action) => isSuperadmin || (isActive && state.perms.has(`${module}:${action}`)),
       refresh: load,
     }
@@ -90,5 +104,4 @@ export function RequireRole({ roles, children }) {
   if (loading) return <p>Loading…</p>
   if (!isActive || !roles.includes(role)) return <p className="s2-error">You don't have access to this page.</p>
   return children
-  
 }
