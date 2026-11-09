@@ -20,13 +20,13 @@ These are the current statuses, not necessarily the statuses during the middle o
 
 ## 2. Problems Encountered
 
-| Problem | Action |
-|---|---|
-| A member had questions about the permissions and rights. | The team discussed where to find the information. |
-| Some Pull Requests needed reviews. | Teammates were asked to review and merge them. |
-| The team needed to decide on default roles for the superadmin account. | Members discussed the account requirements. |
+| Problem | Action Taken or Planned | Status |
+|---|---|---|
+| A teammate asked where to find information about the 36 user-management rights. | The team discussed locating the information. Section 3.8 of the HOPE App Student Guide provides the rights breakdown. | Resolution not confirmed |
+| Some Pull Requests needed reviews. | Teammates were asked to review and merge the PRs. | Review outcomes need verification |
+| The team needed to clarify superadmin account requirements and default roles. | Members discussed the account requirements and shared the requested information. | Final decision not confirmed |
 
-The dates of these discussions still need to be checked to confirm they happened in Sprint 1.
+**Note:** These concerns came from previous team discussions. Their exact dates have not been verified, so they are not yet confirmed as Sprint 1 mid-sprint impediments.
 
 ## 3. Next Steps
 
