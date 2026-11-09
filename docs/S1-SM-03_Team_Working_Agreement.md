@@ -35,6 +35,8 @@ A task is considered complete when:
 | **UI/UX Designer** | Designs the system interface and improves usability. |
 | **Scrum Master** | Organizes sprint tasks, monitors progress, facilitates meetings, and helps resolve blockers. |
 
+**Note:** These five roles describe our project team's responsibilities. They are different from the ERP system's account roles (Superadmin, Admin, and User) described in the HOPE App Student Guide.
+
 ## 4. Team Review
 
 This document will be reviewed by the team to make sure everyone understands their responsibilities and agrees with the working rules.
