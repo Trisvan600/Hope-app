@@ -1,0 +1,63 @@
+S3-TST-01: Test cases for department and job
+
+Tester: Ariah Covers: the Departments and Jobs screens 
+(Human Resources menu): list, search, create, edit, show deleted, linked records and access (Sprint 3 HR module) 
+Date tested: 11/20/2026 Branch tested: Sprint 3 build of the HOPE App (branch name not recorded) 
+App address: http://localhost:5173 Account used: Super Admin test account
+
+A. Department list
+ID	Test case	Account	Steps	Expected result	Result
+DEP-01	Department list loads	Super Admin	1. Log in. 2. Click Departments under Human Resources.	The list shows Code, Department name and Status, with Edit and Delete buttons. No error.	Pass
+DEP-02	Empty state	Super Admin	1. Search for a name that does not exist (for example "zzzz").	A clear "no departments found" message, not a blank or broken page.	Not run
+B. Department search
+ID	Test case	Account	Steps	Expected result	Result
+DEP-03	Search by part of the name	Super Admin	1. Type "acc" in Search departments.	Only departments that match are shown (Accounting).	Pass
+DEP-04	Letter case	Super Admin	1. Type "acc", then "ACC".	Both give the same results.	Not run
+DEP-05	Search by code	Super Admin	1. Type a department code (for example "BR1").	The matching department is shown.	Not run
+DEP-06	Clear the search box	Super Admin	1. Search. 2. Delete the text in the box.	The full list is shown again.	Not run
+C. Department create and edit
+ID	Test case	Account	Steps	Expected result	Result
+DEP-07	Create with valid data	Super Admin	1. Click Add department. 2. Enter a code and a name. 3. Save.	The department is saved and appears in the list as Active.	Not run
+DEP-08	Empty required fields	Super Admin	1. Click Add department. 2. Leave the fields empty. 3. Save.	Not saved. The required fields are marked with a message.	Not run
+DEP-09	Duplicate code or name	Super Admin	1. Add a department with a code or name that already exists.	It is rejected with a clear message.	Not run
+DEP-10	Edit and save	Super Admin	1. Click Edit on a department. 2. Change the name. 3. Save.	The change is saved and shown in the list.	Not run
+DEP-11	Cancel create or edit	Super Admin	1. Type data in the form. 2. Cancel (or close).	Nothing is saved.	Not run
+D. Job list and search
+ID	Test case	Account	Steps	Expected result	Result
+JOB-01	Job list loads	Super Admin	1. Click Jobs under Human Resources.	The list shows Code, Job title and Status, with Edit and Delete buttons. No error.	Pass
+JOB-02	Search by part of the title	Super Admin	1. Type "HR" in Search jobs.	Only matching jobs are shown (HR Specialist).	Pass
+JOB-03	Letter case	Super Admin	1. Type "hr", then "HR".	Both give the same results.	Not run
+JOB-04	Search by code	Super Admin	1. Type a job code (for example "ACCT").	The matching job is shown.	Not run
+JOB-05	Clear the search box	Super Admin	1. Search. 2. Delete the text in the box.	The full list is shown again.	Not run
+E. Job create and edit
+ID	Test case	Account	Steps	Expected result	Result
+JOB-06	Create with valid data	Super Admin	1. Click Add job. 2. Enter a code and a title. 3. Save.	The job is saved and appears in the list as Active.	Not run
+JOB-07	Empty required fields	Super Admin	1. Click Add job. 2. Leave the fields empty. 3. Save.	Not saved. The required fields are marked with a message.	Not run
+JOB-08	Duplicate code or title	Super Admin	1. Add a job with a code or title that already exists.	It is rejected with a clear message.	Not run
+JOB-09	Edit and save	Super Admin	1. Click Edit on a job. 2. Change the title. 3. Save.	The change is saved and shown in the list.	Not run
+JOB-10	Invalid values	Super Admin	1. Enter a very long code or title. 2. Save.	It is rejected with a clear message.	Not run
+F. Show deleted and linked records
+ID	Test case	Account	Steps	Expected result	Result
+SHW-01	Show deleted box	Super Admin	1. Tick "Show deleted" on Departments, then on Jobs. 2. Untick it.	Deleted (inactive) records are listed when ticked. The active list returns when unticked.	Not run
+LNK-01	Department with employees	Super Admin	1. Click Delete on a department that has employees.	Blocked with a clear message. The department stays Active.	Not run
+LNK-02	Job in use	Super Admin	1. Click Delete on a job that is used by an employee.	Blocked with a clear message. The job stays Active.	Not run
+LNK-03	Unused department or job	Super Admin	1. Click Delete on a department or job that no employee uses. 2. Tick Show deleted.	It leaves the active list and appears under Show deleted.	Not run
+G. Access
+ID	Test case	Account	Steps	Expected result	Result
+ACC-01	User with view right sees the lists	User (HR view right)	1. Log in. 2. Open Departments and Jobs.	The lists are shown.	Not run
+ACC-02	User without HR rights	User (no HR rights)	1. Look at the menu. 2. Type the departments page address in the browser.	The Human Resources menu is hidden and direct access is denied.	Not run
+ACC-03	Logged-out user	None	1. Log out. 2. Open the departments page address.	The user is sent to the login page.	Not run
+Screenshot evidence
+
+Screenshots are in the testing/ folder.
+
+Test case	Screenshot	File name
+DEP-01	Department list (Code, Department name, Status)	S3-TST-01_DEP-01_department-list.png
+JOB-01	Job list (Code, Job title, Status)	S3-TST-01_JOB-01_job-list.png
+DEP-03	Searching "acc" shows Accounting	S3-TST-01_DEP-03_department-search.png
+JOB-02	Searching "HR" shows HR Specialist	S3-TST-01_JOB-02_job-search.png
+Results summary
+Date	Branch	Total	Passed	Failed	Not run	Bugs logged
+11/20/2026	Sprint 3 build	28	4	0	24	
+
+Failed cases: none. Bugs logged: none.
