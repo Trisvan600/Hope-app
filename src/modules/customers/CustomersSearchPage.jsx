@@ -1,168 +1,107 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { supabase } from '../../lib/supabaseClient'
-import { useRights } from '../../lib/useRights'
-import {
-  fetchCustomers,
-  softDeleteCustomer,
-  restoreCustomer,
-  PAY_TERMS,
-} from './api'
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+
+// If the table has a different name in Supabase, change it here
+const TABLE = 'customers'
 
 export default function CustomersSearchPage() {
-  const { can } = useRights()
-
+  const [customers, setCustomers] = useState([])
   const [search, setSearch] = useState('')
-  const [debounced, setDebounced] = useState('')
-  const [payTerms, setPayTerms] = useState('')
-  const [view, setView] = useState('active') // 'active' | 'deleted'  (S2-DEV-03)
-  const [reloadKey, setReloadKey] = useState(0)
-  const [rows, setRows] = useState([])
-  const [total, setTotal] = useState(0)
+  const [filterValue, setFilterValue] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [authReady, setAuthReady] = useState(false)
 
-  // wait for the session to be restored before querying
   useEffect(() => {
-    supabase.auth.getSession().then(() => setAuthReady(true))
-    const { data: sub } = supabase.auth.onAuthStateChange(() => setAuthReady(true))
-    return () => sub.subscription.unsubscribe()
+    async function load() {
+      const { data, error } = await supabase.from(TABLE).select('*')
+      if (error) setError(error.message)
+      else setCustomers(data)
+      setLoading(false)
+    }
+    load()
   }, [])
 
-  // debounce typing
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(search), 300)
-    return () => clearTimeout(t)
-  }, [search])
+  // real column names, taken from the data
+  const columns = customers.length ? Object.keys(customers[0]) : []
 
-  useEffect(() => {
-    if (!authReady) return
-    let cancelled = false
-    setLoading(true)
-    setError('')
-    fetchCustomers({ search: debounced, payTerms, view })
-      .then(({ rows, total }) => {
-        if (cancelled) return
-        setRows(rows)
-        setTotal(total)
-      })
-      .catch((e) => {
-        if (cancelled) return
-        setError(e.message || 'Failed to load customers')
-        setRows([])
-        setTotal(0)
-      })
-      .finally(() => !cancelled && setLoading(false))
-    return () => { cancelled = true }
-  }, [authReady, debounced, payTerms, view, reloadKey])
+  // filter column = the first column whose name contains "term" (e.g. pay_term, payment_terms)
+  const filterKey = columns.find((k) => /term/i.test(k))
 
-  // ---- S2-DEV-03: soft delete and restore ----
-  async function handleDelete(c) {
-    if (!can('customers', 'delete')) return
-    if (!window.confirm(`Delete customer ${c.custno} - ${c.custname}?\nYou can restore it later.`)) return
-    try {
-      await softDeleteCustomer(c.custno)
-      setReloadKey((k) => k + 1)
-    } catch (e) {
-      setError(e.message || 'Failed to delete customer')
-    }
-  }
+  const filterOptions = useMemo(() => {
+    if (!filterKey) return []
+    return [...new Set(customers.map((c) => c[filterKey]).filter(Boolean))].sort()
+  }, [customers, filterKey])
 
-  async function handleRestore(c) {
-    if (!can('customers', 'delete')) return // restore counts as 'delete'
-    try {
-      await restoreCustomer(c.custno)
-      setReloadKey((k) => k + 1)
-    } catch (e) {
-      setError(e.message || 'Failed to restore customer')
-    }
-  }
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase()
+    return customers.filter((c) => {
+      const matchesSearch =
+        !s || Object.values(c).some((v) => String(v ?? '').toLowerCase().includes(s))
+      const matchesFilter = !filterValue || c[filterKey] === filterValue
+      return matchesSearch && matchesFilter
+    })
+  }, [customers, search, filterValue, filterKey])
 
   return (
-    <div>
+    <div style={{ padding: 16 }}>
       <h2>Customers (with search)</h2>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button type="button" onClick={() => setView('active')} disabled={view === 'active'}>
-          Active
-        </button>
-        <button type="button" onClick={() => setView('deleted')} disabled={view === 'deleted'}>
-          Deleted
-        </button>
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 8, margin: '12px 0' }}>
         <input
-          style={{ flex: 1 }}
-          placeholder="Search customers..."
+          type="search"
+          placeholder="Search customers…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: 1, padding: 8 }}
         />
-        <select value={payTerms} onChange={(e) => setPayTerms(e.target.value)}>
+        <select
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          style={{ padding: 8 }}
+        >
           <option value="">All pay terms</option>
-          {PAY_TERMS.map((t) => (
-            <option key={t} value={t}>{t}</option>
+          {filterOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
           ))}
         </select>
-        {view === 'active' && can('customers', 'add') && (
-          <Link to="/customers/new">
-            <button type="button">+ New customer</button>
-          </Link>
+        {(search || filterValue) && (
+          <button onClick={() => { setSearch(''); setFilterValue('') }}>Clear</button>
         )}
       </div>
 
-      <p>Total: {total}</p>
+      <p>
+        Total: {filtered.length}
+        {filtered.length !== customers.length && ` of ${customers.length}`}
+      </p>
 
-      {error && <p style={{ color: 'crimson' }}>Error: {error}</p>}
-      {loading && <p>Loading...</p>}
-      {!loading && !error && rows.length === 0 && (
-        <p>{view === 'deleted' ? 'No deleted customers.' : 'No customers found.'}</p>
-      )}
+      {error && <p style={{ color: 'crimson' }}>{error}</p>}
+      {loading && <p>Loading…</p>}
 
-      {rows.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>custno</th>
-              <th>custname</th>
-              <th>address</th>
-              <th>payterm</th>
-              <th>is_deleted</th>
-              <th>stamp</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((c) => (
-              <tr key={c.custno}>
-                <td>{c.custno}</td>
-                <td>{c.custname}</td>
-                <td>{c.address}</td>
-                <td>{c.payterm}</td>
-                <td>{String(c.is_deleted)}</td>
-                <td>{c.stamp}</td>
-                <td>
-                  {view === 'active' ? (
-                    <>
-                      {can('customers', 'edit') && (
-                        <Link to={`/customers/${c.custno}/edit`}>Edit</Link>
-                      )}{' '}
-                      {can('customers', 'delete') && (
-                        <button type="button" onClick={() => handleDelete(c)}>Delete</button>
-                      )}
-                    </>
-                  ) : (
-                    can('customers', 'delete') && (
-                      <button type="button" onClick={() => handleRestore(c)}>Restore</button>
-                    )
-                  )}
-                </td>
-              </tr>
+      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th key={col} style={{ padding: 8 }}>{col}</th>
             ))}
-          </tbody>
-        </table>
-      )}
+          </tr>
+        </thead>
+        <tbody>
+          {!loading && filtered.length === 0 && (
+            <tr>
+              <td colSpan={columns.length || 1} style={{ padding: 16, textAlign: 'center' }}>
+                No customers found.
+              </td>
+            </tr>
+          )}
+          {filtered.map((c, i) => (
+            <tr key={c.id ?? i}>
+              {columns.map((col) => (
+                <td key={col} style={{ padding: 8 }}>{String(c[col] ?? '')}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

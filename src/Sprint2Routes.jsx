@@ -1,33 +1,31 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import UsersPage from './modules/users/UsersPage'
+import CustomerForm from './modules/users/customers/CustomerForm'
+import ProductDetail from './modules/users/customers/ProductDetail'
 import CustomersSearchPage from './modules/customers/CustomersSearchPage'
-import CustomerForm from './modules/customers/CustomersForm'
-import ProductsPage from './modules/products/ProductsPage'
-import ProductForm from './modules/products/ProductFormDialog'
-import RequireApproval from './components/RequireApproval'
-import AppLayout from './components/AppLayout'
-import Home from './pages/Home'
+import CustomersPage from './modules/customers/CustomersPage'
+
 
 export default function Sprint2Routes() {
   return (
-    <RequireApproval>
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/dashboard" element={<Navigate to="/" replace />} />
+    <div>
+      <nav style={{ display: 'flex', gap: '16px', padding: '12px' }}>
+        <NavLink to="/">Home</NavLink>
+        <NavLink to="/users">Users</NavLink>
+        <NavLink to="/customers">Customers</NavLink>
+        <NavLink to="/products">Products</NavLink>
+      </nav>
 
+      <main style={{ padding: '12px' }}>
+        <Routes>
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
           <Route path="/customers" element={<CustomersSearchPage />} />
           <Route path="/customers/new" element={<CustomerForm />} />
-          <Route path="/customers/:custno/edit" element={<CustomerForm />} />
-
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/products/new" element={<ProductForm />} />
-          <Route path="/products/:prodcode/edit" element={<ProductForm />} />
-
+          <Route path="/products" element={<ProductDetail />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </AppLayout>
-    </RequireApproval>
+      </main>
+    </div>
   )
 }

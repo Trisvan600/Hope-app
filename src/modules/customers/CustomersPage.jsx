@@ -1,83 +1,49 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import {
-  fetchCustomers,
-  softDeleteCustomer,
-  restoreCustomer,
-  PAY_TERMS,
-} from './api'
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../../lib/supabase'
 
-const COLUMNS = [
-  { key: 'custno', label: 'Cust No' },
-  { key: 'custname', label: 'Name' },
-  { key: 'address', label: 'Address' },
-  { key: 'payterm', label: 'Pay Terms' },
-  { key: 'stamp', label: 'Stamp' },
-]
+const TABLE = 'customer' // <-- CHANGE to the table name you found in Step 1
 
 export default function CustomersPage() {
-  const [view, setView] = useState('active') // 'active' | 'deleted'
-  const [rows, setRows] = useState([])
-  const [total, setTotal] = useState(0)
+  const [customers, setCustomers] = useState([])
   const [search, setSearch] = useState('')
-  const [payTerms, setPayTerms] = useState('')
+  const [filterValue, setFilterValue] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const load = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError('')
-      const result = await fetchCustomers({ search, payTerms, view })
-      setRows(result.rows)
-      setTotal(result.total)
-    } catch (err) {
-      console.error(err)
-      setError(err.message || 'Failed to load customers')
-    } finally {
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await supabase.from(TABLE).select('*')
+      console.log('customers result:', { data, error })
+      if (error) setError(error.message)
+      else setCustomers(data ?? [])
       setLoading(false)
     }
-  }, [search, payTerms, view])
+    load()
+  }, [])
 
-  useEffect(() => {
-    const t = setTimeout(load, 250)
-    return () => clearTimeout(t)
-  }, [load])
+  const columns = customers.length ? Object.keys(customers[0]) : []
+  const filterKey = columns.find((k) => /term/i.test(k))
 
-  async function handleDelete(c) {
-    if (!window.confirm(`Delete customer ${c.custno} - ${c.custname}?\nYou can restore it later.`)) return
-    try {
-      await softDeleteCustomer(c.custno)
-      load()
-    } catch (err) {
-      setError(err.message)
-    }
-  }
+  const filterOptions = useMemo(() => {
+    if (!filterKey) return []
+    return [...new Set(customers.map((c) => c[filterKey]).filter(Boolean))].sort()
+  }, [customers, filterKey])
 
-  async function handleRestore(c) {
-    try {
-      await restoreCustomer(c.custno)
-      load()
-    } catch (err) {
-      setError(err.message)
-    }
-  }
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase()
+    return customers.filter((c) => {
+      const matchesSearch =
+        !s || Object.values(c).some((v) => String(v ?? '').toLowerCase().includes(s))
+      const matchesFilter = !filterValue || c[filterKey] === filterValue
+      return matchesSearch && matchesFilter
+    })
+  }, [customers, search, filterValue, filterKey])
 
   return (
     <div style={{ padding: 16 }}>
       <h2>Customers</h2>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={() => setView('active')} disabled={view === 'active'}>
-          Active
-        </button>
-        <button onClick={() => setView('deleted')} disabled={view === 'deleted'}>
-          Deleted
-        </button>
-        {view === 'active' && <Link to="/customers/new">+ Add customer</Link>}
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: 8, margin: '12px 0' }}>
         <input
           type="search"
           placeholder="Search customers…"
@@ -85,50 +51,50 @@ export default function CustomersPage() {
           onChange={(e) => setSearch(e.target.value)}
           style={{ flex: 1, padding: 8 }}
         />
-        <select value={payTerms} onChange={(e) => setPayTerms(e.target.value)} style={{ padding: 8 }}>
+        <select
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          style={{ padding: 8 }}
+        >
           <option value="">All pay terms</option>
-          {PAY_TERMS.map((t) => (
-            <option key={t} value={t}>{t}</option>
+          {filterOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
           ))}
         </select>
-        {(search || payTerms) && (
-          <button onClick={() => { setSearch(''); setPayTerms('') }}>Clear</button>
+        {(search || filterValue) && (
+          <button onClick={() => { setSearch(''); setFilterValue('') }}>Clear</button>
         )}
       </div>
 
-      <p>Total: {total}</p>
+      <p>
+        Total: {filtered.length}
+        {filtered.length !== customers.length && ` of ${customers.length}`}
+      </p>
+
       {error && <p style={{ color: 'crimson' }}>Error: {error}</p>}
       {loading && <p>Loading…</p>}
 
       <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
         <thead>
           <tr>
-            {COLUMNS.map((c) => (
-              <th key={c.key} style={{ padding: 8 }}>{c.label}</th>
+            {columns.map((col) => (
+              <th key={col} style={{ padding: 8 }}>{col}</th>
             ))}
-            <th style={{ padding: 8 }}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {!loading && rows.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <tr>
-              <td colSpan={COLUMNS.length + 1} style={{ padding: 16, textAlign: 'center' }}>
-                {view === 'deleted' ? 'No deleted customers.' : 'No customers found.'}
+              <td colSpan={columns.length || 1} style={{ padding: 16, textAlign: 'center' }}>
+                No customers found.
               </td>
             </tr>
           )}
-          {rows.map((c) => (
-            <tr key={c.custno}>
-              {COLUMNS.map((col) => (
-                <td key={col.key} style={{ padding: 8 }}>{String(c[col.key] ?? '')}</td>
+          {filtered.map((c, i) => (
+            <tr key={c.id ?? i}>
+              {columns.map((col) => (
+                <td key={col} style={{ padding: 8 }}>{String(c[col] ?? '')}</td>
               ))}
-              <td style={{ padding: 8 }}>
-                {view === 'active' ? (
-                  <button onClick={() => handleDelete(c)}>Delete</button>
-                ) : (
-                  <button onClick={() => handleRestore(c)}>Restore</button>
-                )}
-              </td>
             </tr>
           ))}
         </tbody>
