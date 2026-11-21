@@ -1,73 +1,166 @@
-# HOPE App Smoke Tests (S1-TST-05)
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import CustomerFormDialog from './CustomerFormDialog'
+import './CustomersPage.css'
 
-Automated smoke tests (Playwright) for login and the main page of the HOPE App.
-They give a quick check that the essential features still work after changes.
+const TABLE = 'customer'
+const KEY = 'custno' // the primary key column
 
-## What is covered
-| ID | Check |
-|----|-------|
-| SMOKE-01 | A user can log in successfully (the Log out button is shown) |
-| SMOKE-02 | The main page loads after login (welcome message and Log out button) |
-| SMOKE-03 | The main page shows navigation (sidebar) and module tiles |
+export default function CustomersPage() {
+  const [customers, setCustomers] = useState([])
+  const [search, setSearch] = useState('')
+  const [filterValue, setFilterValue] = useState('')
+  const [showDeleted, setShowDeleted] = useState(false)
+  const [dialog, setDialog] = useState(null) // null | 'new' | customer row
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-## Prerequisites
-- Node.js (LTS) and Git
-- The HOPE App code and its own `.env` (Supabase URL and anon key from the DB Admin)
-- A **test** account that can log in (ask the DB Admin). Never use a real person's account.
+  async function load() {
+    const { data, error } = await supabase.from(TABLE).select('*').order(KEY)
+    if (error) setError(error.message)
+    else { setError(''); setCustomers(data ?? []) }
+    setLoading(false)
+  }
 
-## Setup (one time)
-1. Start the HOPE App from its folder (the one with its `package.json`):
-   ```
-   npm install
-   npm run dev
-   ```
-   Note the address it prints, for example `http://localhost:5173`.
-2. In a second terminal, go to this folder (`testing/smoke`) and run:
-   ```
-   npm install
-   npx playwright install chromium
-   ```
-3. Create a file named `.env` in this folder with these four lines, using your own values:
-   ```
-   BASE_URL=http://localhost:5173
-   LOGIN_PATH=/login
-   TEST_EMAIL=<test account email>
-   TEST_PASSWORD=<test account password>
-   ```
-   Never commit or upload `.env`. The repo is public.
+  useEffect(() => { load() }, [])
 
-## Run the tests
-Keep the app running, then in this folder:
-```
-npm test
-```
-To open the HTML report afterwards:
-```
-npm run report
-```
-On a slow computer the timeout in `playwright.config.js` is set to 120000 ms.
+  // ---------- DEV-02: create and edit ----------
+  async function handleSave(values) {
+    if (dialog === 'new') {
+      const { error } = await supabase.from(TABLE).insert([{ ...values, is_deleted: false }])
+      if (error) throw error
+    } else {
+      const { error } = await supabase.from(TABLE).update(values).eq(KEY, dialog[KEY])
+      if (error) throw error
+    }
+    await load()
+  }
 
-## If the UI changes
-Selectors are in the `SELECTORS` block of `tests/smoke.spec.js`. Update them there.
-Module tiles are expected to have `data-testid="module-tile"`.
+  // ---------- DEV-03: soft delete and restore ----------
+  async function setDeleted(row, value) {
+    const { error } = await supabase.from(TABLE).update({ is_deleted: value }).eq(KEY, row[KEY])
+    if (error) { setError(error.message); return }
+    await load()
+  }
 
-## Results
+  async function handleDelete(row) {
+    if (!window.confirm(`Delete ${row.custname}? You can restore it later.`)) return
+    await setDeleted(row, true)
+  }
 
-**Run 1: 2026-11-09 (about 6:11 AM)**
-- Branch tested: `s1-dev-08-main-page` (downloaded as a ZIP from GitHub)
-- Account used: Admin test account
-- Total time: 1.5 minutes
+  const columns = customers.length ? Object.keys(customers[0]) : []
+  const filterKey = columns.find((k) => /term/i.test(k))
 
-| Test | Result | Notes |
-|------|--------|-------|
-| SMOKE-01 Login | PASS | |
-| SMOKE-02 Main page loads after login | PASS | Shows the welcome message, account card, and Log out button |
-| SMOKE-03 Navigation and module tiles | FAIL | No navigation element or module tiles found on the main page. Depends on S1-DEV-08 (Issue #16). Logged as BUG-01 under S1-TST-06 |
+  const filterOptions = useMemo(() => {
+    if (!filterKey) return []
+    return [...new Set(customers.map((c) => c[filterKey]).filter(Boolean))].sort()
+  }, [customers, filterKey])
 
-**Summary:** 2 passed, 1 failed.
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase()
+    return customers.filter((c) => {
+      const matchesDeleted = !!c.is_deleted === showDeleted
+      const matchesSearch =
+        !s || Object.values(c).some((v) => String(v ?? '').toLowerCase().includes(s))
+      const matchesFilter = !filterValue || c[filterKey] === filterValue
+      return matchesDeleted && matchesSearch && matchesFilter
+    })
+  }, [customers, search, filterValue, filterKey, showDeleted])
 
-An earlier run had SMOKE-01 time out while setting up the browser (the computer was slow
-and the 30 second timeout was too short). It was not an app problem. After raising the
-timeout it passed.
+  const visibleCount = customers.filter((c) => !!c.is_deleted === showDeleted).length
 
-**Next run:** repeat after the sidebar and module tiles are delivered. SMOKE-03 should then pass.
+  return (
+    <div style={{ padding: 16 }}>
+      <h2>Customers</h2>
+
+      <div style={{ display: 'flex', gap: 8, margin: '12px 0', alignItems: 'center' }}>
+        <input
+          type="search"
+          placeholder="Search customers…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: 1, padding: 8 }}
+        />
+        <select
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+          style={{ padding: 8 }}
+        >
+          <option value="">All pay terms</option>
+          {filterOptions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </select>
+        {(search || filterValue) && (
+          <button onClick={() => { setSearch(''); setFilterValue('') }}>Clear</button>
+        )}
+        <label style={{ whiteSpace: 'nowrap' }}>
+          <input
+            type="checkbox"
+            checked={showDeleted}
+            onChange={(e) => setShowDeleted(e.target.checked)}
+          />{' '}
+          Show deleted
+        </label>
+        <button className="u-btn primary" onClick={() => setDialog('new')}>
+          + Add customer
+        </button>
+      </div>
+
+      <p>
+        Total: {filtered.length}
+        {filtered.length !== visibleCount && ` of ${visibleCount}`}
+      </p>
+
+      {error && <p style={{ color: 'crimson' }}>Error: {error}</p>}
+      {loading && <p>Loading…</p>}
+
+      <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th key={col} style={{ padding: 8 }}>{col}</th>
+            ))}
+            <th style={{ padding: 8 }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {!loading && filtered.length === 0 && (
+            <tr>
+              <td colSpan={columns.length + 1} style={{ padding: 16, textAlign: 'center' }}>
+                {showDeleted ? 'No deleted customers.' : 'No customers found.'}
+              </td>
+            </tr>
+          )}
+          {filtered.map((c, i) => (
+            <tr key={c[KEY] ?? i}>
+              {columns.map((col) => (
+                <td key={col} style={{ padding: 8 }}>{String(c[col] ?? '')}</td>
+              ))}
+              <td style={{ padding: 8 }}>
+                <div className="u-actions">
+                  {showDeleted ? (
+                    <button className="u-btn" onClick={() => setDeleted(c, false)}>Restore</button>
+                  ) : (
+                    <>
+                      <button className="u-btn" onClick={() => setDialog(c)}>Edit</button>
+                      <button className="u-btn danger" onClick={() => handleDelete(c)}>Delete</button>
+                    </>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {dialog && (
+        <CustomerFormDialog
+          customer={dialog === 'new' ? null : dialog}
+          onSave={handleSave}
+          onClose={() => setDialog(null)}
+        />
+      )}
+    </div>
+  )
+}
