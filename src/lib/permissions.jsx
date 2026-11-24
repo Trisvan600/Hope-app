@@ -1,5 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { supabase } from './supabaseClient'
+export function can(user, permission) {
+  return !!user?.permissions?.includes(permission)
+  function can(user, permission) {
+  return !!user?.permissions?.includes(permission)
+ 
+}
+}
 
 // REPLACES the Sprint 2 permissions.jsx. Rights now come from user_permissions (per user),
 // and the context also exposes the user's role and status.
@@ -83,4 +90,5 @@ export function RequireRole({ roles, children }) {
   if (loading) return <p>Loading…</p>
   if (!isActive || !roles.includes(role)) return <p className="s2-error">You don't have access to this page.</p>
   return children
+  
 }
