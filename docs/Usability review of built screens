@@ -1,0 +1,7 @@
+Customer Screens (Storefront, Cart, Checkout & Tracking): The dark corporate slate theme (#0f172a canvas, #1e293b cards, #2563eb accents) stays consistent across product browsing, the slide-out cart drawer, and the 4-stage live shipment timeline. Navigation between catalog filters and checkout flows is clear, though the multi-tab top bar wraps onto multiple lines on narrow mobile screens (<480px).
+
+Product & Price History Screens: The SKU catalog table, dual-line Selling Price vs. COGS SVG trend chart, and audit log table effectively visualize margin performance. However, data points on the SVG chart lack hover tooltips, forcing users to manually cross-reference dates in the audit log below.
+
+Hi-Fi Mockups & Developer Handoff Notes: Integrating a unified slide-out handoff drawer with copyable color tokens, typography specs, and JSON API schemas streamlines developer handoff across all five screen workflows.
+
+Empty, Error & Confirm-Delete States: Live empty-search filtering, 503/403 error boundaries with diagnostic trace IDs, inline negative-margin validation, and the three-tier delete confirmation system (inline undo, impact modal, and type-to-confirm guard) provide strong safeguards against user error.
