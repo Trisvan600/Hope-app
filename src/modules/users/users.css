@@ -1,0 +1,43 @@
+.u-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.u-tabs button { padding: 8px 14px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer; }
+.u-tabs button.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.u-count { margin-left: 6px; background: #ef4444; color: #fff; border-radius: 999px; padding: 0 7px; font-size: 12px; }
+
+.u-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+.u-toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.u-toolbar .u-input:first-child { flex: 1; min-width: 180px; }
+
+.u-input { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; width: 100%; box-sizing: border-box; }
+.u-toolbar .u-input { width: auto; }
+
+.u-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer; font: inherit; }
+.u-btn:hover { background: #f1f5f9; }
+.u-btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.u-btn.primary:hover { background: #1d4ed8; }
+.u-btn.danger { color: #dc2626; border-color: #fca5a5; }
+.u-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.u-table { width: 100%; border-collapse: collapse; }
+.u-table th, .u-table td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+.u-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.u-muted { color: #94a3b8; }
+
+.u-badge { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #e2e8f0; }
+.st-active { background: #dcfce7; color: #166534; }
+.st-pending { background: #fef9c3; color: #854d0e; }
+.st-blocked, .st-rejected { background: #fee2e2; color: #991b1b; }
+.role-superadmin { background: #ede9fe; color: #5b21b6; }
+.role-admin { background: #dbeafe; color: #1e40af; }
+
+.u-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.5); display: grid; place-items: center; z-index: 50; }
+.u-dialog { background: #fff; border-radius: 12px; width: min(560px, 92vw); max-height: 90vh; display: flex; flex-direction: column; }
+.u-dialog-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid #e2e8f0; }
+.u-dialog-head h3 { margin: 0; }
+.u-x { border: none; background: none; font-size: 24px; cursor: pointer; }
+.u-dialog-body { padding: 18px; overflow: auto; }
+.u-dialog-foot { padding: 12px 18px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px; }
+
+.u-form { display: grid; gap: 12px; }
+.u-form label { display: grid; gap: 4px; font-size: 14px; }
+.u-form .u-check { display: flex; align-items: center; gap: 8px; }
+.u-form .u-check input { width: auto; }
